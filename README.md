@@ -1,7 +1,6 @@
 # ISPageScrollView
 
-Note: This is a sub-project of [UIKitHelper](https://github.com/tonyzonghui/UIKitHelper) git project. You may want to use UIKitHelper in your project for more UIKit utilities.
-
+Note: This is a fork of [ISPageScrollView](https://github.com/tonyzonghui/ISPageScrollView). This fork uses **UIViewControllers** instead of UIViews.
 ---
 
 ### Description
@@ -20,7 +19,7 @@ ISPageScrollView is a UIScrollView subclass optimised for huge number of pages d
 
 ### DataSource required methods
 
-**-viewForScrollView:(ISPageScrollView *)scrollView page:(NSInteger)pageIndex**: Needs to return the view to use on specified page.
+**-controllerForScrollView:(ISPageScrollView *)scrollView page:(NSInteger)pageIndex**: Needs to return the view controller to use on specified page.
 
 **-numberOfPagesForPageScrollView:(ISPageScrollView *)scrollView**: Needs to return the number of pages in the scroll view.
 
@@ -32,7 +31,7 @@ It can be created in xcode like UIScollView or can be created programatically.
 ```
 ISPageScrollView *pageScrollView = [[ISPageScrollView alloc] initWithFrame:CGRectMake(0, 0, 200, 100)];
 pageScrollView.dataSource = self;
-pageScrollView.numberOfReusableViews = 5;
+pageScrollView.numberOfReusableControllers = 5;
 
 [pageScrollView displayPage:0];
 

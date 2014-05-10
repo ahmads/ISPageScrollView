@@ -3,6 +3,7 @@
 //
 //  Copyright (c) 2013 Zhang Zonghui
 //  Edited by Jos Kuijpers
+//  Edited by Ahmad Salman
 //
 //  Permission is hereby granted, free of charge, to any person obtaining a copy
 //  of this software and associated documentation files (the "Software"), to deal
@@ -30,7 +31,7 @@
 
 @property (nonatomic, weak) id<ISPageScrollViewDataSource> dataSource;
 @property (nonatomic, weak) id<ISPageScrollViewDelegate> pageDelegate;
-@property (nonatomic, assign) NSInteger numberOfReusableViews;
+@property (nonatomic, assign) NSInteger numberOfReusableControllers;
 @property (nonatomic, readonly) NSInteger currentPageIndex;
 @property (nonatomic, readonly) NSMutableDictionary *scrollViewAvailablePages;
 

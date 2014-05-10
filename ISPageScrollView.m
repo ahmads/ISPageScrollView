@@ -3,6 +3,7 @@
 //
 //  Copyright (c) 2013 Zhang Zonghui
 //  Edited by Jos Kuijpers
+//  Edited by Ahmad Salman
 //
 //  Permission is hereby granted, free of charge, to any person obtaining a copy
 //  of this software and associated documentation files (the "Software"), to deal
@@ -26,8 +27,8 @@
 
 @interface ISPageScrollView () <UIScrollViewDelegate>
 
-- (void)setupScrollViewForDisplayingPage:(NSInteger)pageIndex;
-
+- (void)setupScrollViewForDisplayingPage:(NSInteger)pageIndex
+								animated:(BOOL)animated;
 @end
 
 @implementation ISPageScrollView {
@@ -45,7 +46,7 @@
         [self setShowsHorizontalScrollIndicator:NO];
         
         _scrollViewAvailablePages = [@{} mutableCopy];
-        _numberOfReusableViews = 0;
+        _numberOfReusableControllers = 0;
     }
     return self;
 }
@@ -60,7 +61,7 @@
     [self setShowsHorizontalScrollIndicator:NO];
     
     _scrollViewAvailablePages = [@{} mutableCopy];
-    _numberOfReusableViews = 0;    
+    _numberOfReusableControllers = 0;    
 }
 
 #pragma mark - UIScrollViewDelegate
@@ -84,43 +85,47 @@
 								animated:(BOOL)animated
 {
 	NSInteger numberOfPages = [_dataSource numberOfPagesForPageScrollView:self];
-	if(numberOfPages < self.numberOfReusableViews)
-		self.numberOfReusableViews = numberOfPages;
+	if(numberOfPages < self.numberOfReusableControllers)
+		self.numberOfReusableControllers = numberOfPages;
 
-    NSInteger minPageIndex = MAX(0, pageIndex - (_numberOfReusableViews - 1) / 2.0);
-    NSInteger maxPageIndex = MIN(numberOfPages, pageIndex + (_numberOfReusableViews - 1) / 2.0);
+    NSInteger minPageIndex = MAX(0, pageIndex - (_numberOfReusableControllers - 1) / 2.0);
+    NSInteger maxPageIndex = MIN(numberOfPages, pageIndex + (_numberOfReusableControllers - 1) / 2.0);
     
-    // remove unused views
+    // remove unused controllers
     for ( NSNumber *pageIndex in _scrollViewAvailablePages.allKeys )
     {
         if ( pageIndex.integerValue < minPageIndex || pageIndex.integerValue > maxPageIndex )
         {
-			if([_pageDelegate respondsToSelector:@selector(pageScrollView:willRemoveView:atPage:)])
+			if([_pageDelegate respondsToSelector:@selector(pageScrollView:willRemoveController:atPage:)])
 				[_pageDelegate pageScrollView:self
-							   willRemoveView:_scrollViewAvailablePages[pageIndex]
+							   willRemoveController:_scrollViewAvailablePages[pageIndex]
 									   atPage:pageIndex.integerValue];
+									   
+			UIViewController *controllerToRemove = _scrollViewAvailablePages[pageIndex];
+			[controllerToRemove.view removeFromSuperview];
+			[controllerToRemove removeFromParentViewController];
 			
-            [_scrollViewAvailablePages[pageIndex] removeFromSuperview];
-            [_scrollViewAvailablePages removeObjectForKey:pageIndex];
-			
-			if([_pageDelegate respondsToSelector:@selector(pageScrollView:didRemoveViewAtPage:)])
+			[_scrollViewAvailablePages removeObjectForKey:pageIndex];
+						
+			if([_pageDelegate respondsToSelector:@selector(pageScrollView:didRemoveControllerAtPage:)])
 				[_pageDelegate pageScrollView:self
-						  didRemoveViewAtPage:pageIndex.integerValue];
+						  didRemoveControllerAtPage:pageIndex.integerValue];
         }
     }
     
-    // add in new views
-    for ( NSInteger i = minPageIndex; i <= maxPageIndex; i++ )
+    // add in new controllers
+	for ( NSInteger i = minPageIndex; i <= maxPageIndex; i++ )
     {
-        UIView *viewForPage = _scrollViewAvailablePages[@(i)];
-        if ( viewForPage == nil )
-        {
-            viewForPage = [self.dataSource viewForScrollView:self page:i];
-            [self addSubview:viewForPage];
-            [_scrollViewAvailablePages setObject:viewForPage forKey:@(i)];
-        }
-        
-        viewForPage.frame = CGRectMake((i - minPageIndex) * self.frame.size.width, 0, viewForPage.frame.size.width, viewForPage.frame.size.height);
+    	UIViewController *controllerForPage = _scrollViewAvailablePages[@(i)];
+    	if ( controllerForPage == nil )
+    	{
+    		controllerForPage = [self.dataSource controllerForScrollView:self page:i];
+    		[self addSubview:controllerForPage.view];
+    		[((UIViewController *)self.dataSource) addChildViewController: controllerForPage];
+    		[_scrollViewAvailablePages setObject:controllerForPage forKey:@(i)];
+    	}
+    	
+    	controllerForPage.view.frame = CGRectMake((i - minPageIndex) * self.frame.size.width, 0, controllerForPage.view.frame.size.width, controllerForPage.view.frame.size.height);
     }
     
     self.contentOffset = CGPointMake(self.frame.size.width * (pageIndex - minPageIndex), 0);

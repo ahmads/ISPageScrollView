@@ -3,6 +3,7 @@
 //
 //  Copyright (c) 2013 Zhang Zonghui
 //  Created by Jos Kuijpers
+//  Edited by Ahmad Salman
 //
 //  Permission is hereby granted, free of charge, to any person obtaining a copy
 //  of this software and associated documentation files (the "Software"), to deal
@@ -32,7 +33,7 @@
 /**
  * The view for given scroll view and page. This method is required.
  */
-- (UIView *)viewForScrollView:(ISPageScrollView *)scrollView
+- (UIViewController *)controllerForScrollView:(ISPageScrollView *)scrollView
 						 page:(NSInteger)pageIndex;
 
 /**
